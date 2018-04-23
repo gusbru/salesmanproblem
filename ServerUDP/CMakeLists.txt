@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 3.10)
+project(ServerUDP)
+
+set(CMAKE_CXX_STANDARD 11)
+
+add_executable(ServerUDP main.cpp Server.cpp Server.h port.h)
