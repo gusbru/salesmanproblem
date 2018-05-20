@@ -1,32 +1,36 @@
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.scene.layout.BorderPane;
+import javafx.stage.Stage;
+
 import java.io.*;
 import java.net.*;
 
-public class Client
+public class Client extends Application
 {
     public static void main(String args[])
     {
-        String ip = "127.0.0.1";
-        int port = 61234;
+
+        System.out.println("main");
 
         try {
-            Socket socket = new Socket(ip, port);
-            ObjectOutputStream transmission = new ObjectOutputStream(socket.getOutputStream());
-            BufferedReader inputMsg = new BufferedReader(new InputStreamReader(System.in));
-            String msg;
-
-            do
-            {
-                msg = inputMsg.readLine();
-                transmission.writeObject(msg);
-                transmission.flush();
-            } while(!msg.toUpperCase().equals("FIM"));
-
-            transmission.close();
-            socket.close();
+            Application.launch(args);
         } catch (Exception error)
         {
-            System.err.println("" + error);
+            System.err.println("--->" + error);
         }
+    }
 
+    @Override
+    public void start(Stage primaryStage) throws Exception {
+        System.out.println("Starting the GUI");
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("ClientUI.fxml"));
+        BorderPane mainBox = loader.load();
+
+        Scene scene = new Scene(mainBox);
+        primaryStage.setScene(scene);
+        primaryStage.setTitle("Plan Route");
+        primaryStage.show();
     }
 }

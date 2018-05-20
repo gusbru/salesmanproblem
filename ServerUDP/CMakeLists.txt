@@ -3,4 +3,4 @@ project(ServerUDP)
 
 set(CMAKE_CXX_STANDARD 11)
 
-add_executable(ServerUDP main.cpp Server.cpp Server.h port.h)
+add_executable(ServerUDP main.cpp Server.cpp Server.h port.h CityConnections.cpp CityConnections.h City.cpp City.h SearchPath.cpp SearchPath.h Stack.cpp Stack.h PairPathCost.cpp PairPathCost.h)

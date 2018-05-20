@@ -32,8 +32,8 @@ Server::Server()
      *
      **/
     std::cout << "Creating the socket... ";
-    fd = socket(AF_INET, SOCK_DGRAM, 0);
-    if (fd < 0)
+    ser_fd = socket(AF_INET, SOCK_STREAM, 0);
+    if (ser_fd < 0)
         throw std::invalid_argument("Error opening datagram socket");
 
     std::cout << "OK" << std::endl;
@@ -67,13 +67,32 @@ Server::Server()
      *               symbolic constant INADDR_ANY.
      *
      **/
-    memset((char *) &myaddr, 0, sizeof(myaddr));
-    myaddr.sin_family = AF_INET;
-    myaddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    myaddr.sin_port = htons(SERVICE_PORT);
+    memset((char *) &ser_addr, 0, sizeof(ser_addr));
+    ser_addr.sin_family = AF_INET;
+    ser_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    ser_addr.sin_port = htons(SERVICE_PORT);
     std::cout << "Binding the socket...";
-    if (bind(fd, (struct sockaddr *) &myaddr, sizeof(myaddr)) < 0)
+    if (bind(ser_fd, (struct sockaddr *) &ser_addr, sizeof(ser_addr)) < 0)
         throw std::invalid_argument("binding datagram socket failed");
+
+    std::cout << "OK" << std::endl;
+
+    // Listening for connection
+    std::cout << "Listening for incoming connections...";
+    if (listen(ser_fd, 3) < 0)
+    {
+        perror("listening");
+        exit(2);
+    }
+
+
+    // accept the connection
+    cli_fd = accept(ser_fd, (struct sockaddr *) &rem_addr, &rem_len);
+    if (cli_fd < 0)
+    {
+        perror("accept");
+        exit(2);
+    }
 
     std::cout << "OK" << std::endl;
 
@@ -109,29 +128,58 @@ Server::Server()
      * @return   :  the number of bytes that were read into buffer
      *
      */
-     int tmp = 0;
-     printf("Waiting on port %d\n", ntohs(myaddr.sin_port));
-     for(;;)
-     {
-         recvlen = recvfrom(fd, buf, BUFSIZE, 0, (struct sockaddr *)&remaddr, &addrlen);
+    int tmp = 0;
+    CityConnections cityConnections;
+    std::vector<std::string> cities = cityConnections.getCitiesName();
+    char cityList[BUFSIZE] = "";
+    std::string list;
+    for (auto &city : cities)
+        list += city + ";";
+    list += "\n";
+
+    strncpy(cityList, list.c_str(), strlen(list.c_str()));
+
+    printf("Waiting on port %d\n", ntohs(ser_addr.sin_port));
+
+    printf("Sending city list...");
+    if (write(cli_fd, cityList, sizeof(cityList)) < 0)
+    {
+        perror("Sending city list");
+        exit(2);
+    }
+    printf("OK\n");
+
+    for(;;)
+    {
+//         recvlen = recvfrom(ser_fd, buf, BUFSIZE, 0, (struct sockaddr *)&rem_addr, &rem_len);
+         recvlen = (int) read(cli_fd, buf, BUFSIZE);
          if (recvlen > 0)
          {
              buf[recvlen] = 0;
              printf("received message: \"%s\" (%d bytes)", buf, recvlen);
              tmp++;
+             if (strncmp(buf, "FIM", BUFSIZE) == 0)
+                 break;
          }
          else
          {
              printf("uh oh - something went wrong!\n");
+             std::cout << "Closing connection...";
+             close(ser_fd);
+             exit(1);
          }
 
 
          // send message back to client
-         sprintf(buf, "ack %d", msgcnt++);
-         printf("sending response ""\"%s\"\n", buf);
-         if (sendto(fd, buf, strlen(buf), 0, (struct sockaddr *)&remaddr, addrlen) < 0)
-             perror("sendto");
-         printf("message count = %d\n", tmp);
+//         sprintf(buf, "ack %d", msgcnt++);
+//         printf("sending response ""\"%s\"\n", buf);
+//         if (sendto(ser_fd, buf, strlen(buf), 0, (struct sockaddr *)&rem_addr, rem_len) < 0)
+//             perror("sendto");
+//         printf("message count = %d\n", tmp);
      }
+
+     std::cout << "Closing connection...";
+     close(ser_fd);
+     std::cout << "OK" << std::endl;
 
 }

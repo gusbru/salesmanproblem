@@ -72,6 +72,10 @@ int main(void)
                         printf("received message: \"%s\"\n", buf);
                 }
 	}
+
+	sprintf(buf, "FIM");
+	sendto(fd, buf, strlen(buf), 0, (struct sockaddr *)&remaddr, slen);
+
 	close(fd);
 	return 0;
 }
