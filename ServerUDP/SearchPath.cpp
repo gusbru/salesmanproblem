@@ -66,6 +66,17 @@ void SearchPath::start()
                     currentCity->setVisited();
                 }
 
+                // for the case where there is only one connection (e.g. Albuquerque)
+                if (cityConnections.getCity(neighbor)->getNumNeighbors() == 1) {
+                    std::cout << "\t" << neighbor << " at " << currentCity->getDistance(neighbor) << std::endl;
+                    tmpCost = currentCost;
+                    tmpPath = currentPath;
+                    tmpPath.emplace_back(neighbor);
+                    tmpCost += currentCity->getDistance(neighbor);
+                    citiesStack.addItem(PairPathCost(tmpPath, tmpCost));
+                    currentCity->setVisited();
+                }
+
             }
             std::cout << "Stack = " << citiesStack.toString() << std::endl;
         }
