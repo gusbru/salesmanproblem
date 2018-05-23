@@ -47,16 +47,21 @@ void SearchPath::start()
         std::cout << std::endl;
         std::cout << "I am at " << currentCity->getName() << std::endl;
 
-        if (isSolution(currentPath))
+        if (isSolution(currentPath, startCity))
         {
             // compare cost
-        }
-        else
+            std::cout << "**************************************" << std::endl;
+            std::cout << "FOUND A SOLUTION" << std::endl;
+            std::cout << "**************************************" << std::endl;
+            exit(0);
+
+        } else
         {
             std::cout << "Looking for:\n";
             for (auto &neighbor : currentCity->getNeighborsName())
             {
-                if (!cityConnections.getCity(neighbor)->isVisited()) {
+                if (!cityConnections.getCity(neighbor)->isVisited())
+                {
                     std::cout << "\t" << neighbor << " at " << currentCity->getDistance(neighbor) << std::endl;
                     tmpCost = currentCost;
                     tmpPath = currentPath;
@@ -67,7 +72,8 @@ void SearchPath::start()
                 }
 
                 // for the case where there is only one connection (e.g. Albuquerque)
-                if (cityConnections.getCity(neighbor)->getNumNeighbors() == 1) {
+                if (cityConnections.getCity(neighbor)->getNumNeighbors() == 1)
+                {
                     std::cout << "\t" << neighbor << " at " << currentCity->getDistance(neighbor) << std::endl;
                     tmpCost = currentCost;
                     tmpPath = currentPath;
@@ -83,24 +89,56 @@ void SearchPath::start()
 
     }
 
+    std::cout << "Solution = ";
+    for (const auto &i : currentPath)
+    {
+        std::cout << i << "->";
+    }
+    std::cout << std::endl;
 
 }
 
-bool SearchPath::isSolution(std::vector<std::string> path)
+bool SearchPath::isSolution(std::vector<std::string> path, std::string initialCity)
 {
     if (path.size() < allCities->size())
         return false;
 
-    if (currentCity->getName() != path.back())
-        return false;
+    // get a list of all city names
+    std::vector<std::string> listOfCities = cityConnections.getCitiesName();
 
-//    int count = 0;
-//    for (auto &city : allCities) {
-//        for (int i = 0; i < path.size(); i++) {
-//            if (city == path[i]) {
-//                count++;
-//                break;
-//            }
-//        }
-//    }
+    // check which cities were visited
+    for (auto &p : path)
+    {
+        for (int i = 0; i < listOfCities.size(); i++)
+        {
+            if (listOfCities[i] == p)
+            {
+                listOfCities.erase(listOfCities.begin() + i);
+                break;
+            }
+
+        }
+
+    }
+
+    // se a lista de cidades estiver vazia e a ultima cidade tiver como vizinho
+    // initialCity, entao path 'e uma solucao
+    if (listOfCities.empty())
+    {
+        std::cout << "*************************************************************" << std::endl;
+        std::cout << "*************************************************************" << std::endl;
+        std::cout << "path found = ";
+        for (auto &c : path) {
+            std::cout << c << "->";
+        }
+        std::cout << std::endl;
+        std::cout << "*************************************************************" << std::endl;
+        std::cout << "*************************************************************" << std::endl;
+        for (auto &n : cityConnections.getNeighbors(path.back()))
+            if (n == initialCity) return true;
+    }
+
+    return false;
+
+//    return listOfCities.empty();
 }

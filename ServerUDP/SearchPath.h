@@ -27,7 +27,7 @@ private:
     City *currentCity;
     CityConnections cityConnections;
 
-    bool isSolution(std::vector<std::string> path);
+    bool isSolution(std::vector<std::string> path, std::string initialCity);
 
 };
 

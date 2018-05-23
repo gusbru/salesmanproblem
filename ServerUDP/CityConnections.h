@@ -60,6 +60,7 @@ public:
     std::vector<City> *getCities();
     std::vector<std::string> getCitiesName();
     City *getCity(std::string city);
+    std::vector<std::string> getNeighbors(std::string city);
 
 
 private:

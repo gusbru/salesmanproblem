@@ -70,8 +70,11 @@ void CityConnections::populateCities()
 
     // Phoenix
     name = PHOENIX;
-    neighbors = {SANDIEGO, GRANDCANYON, SALTLAKECITY, ALBUQUERQUE, DALLAS, SANANTONIO};
-    distances = {350, 360, 660, 350, 1070, 990};
+//    neighbors = {SANDIEGO, GRANDCANYON, SALTLAKECITY, ALBUQUERQUE, DALLAS, SANANTONIO};
+//    distances = {350, 360, 660, 350, 1070, 990};
+        //test
+    neighbors = {SANDIEGO, GRANDCANYON, SALTLAKECITY};
+    distances = {350, 360, 660};
     cities.insert(std::pair <std::string, City> (name, City(name, neighbors, distances)));
 
     // Grand Canyon
@@ -92,6 +95,51 @@ void CityConnections::populateCities()
     distances = {520, 420, 660, 530};
     cities.insert(std::pair <std::string, City> (name, City(name, neighbors, distances)));
 
+    // Yellowstone
+    name = YELLOWSTONE;
+    //neighbors = {BOISE, DENVER, MINEAPOLIS};
+    //distances = {670, 930, 1340};
+    //test
+    neighbors = {BOISE, DENVER};
+    distances = {670, 930};
+    cities.insert(std::pair <std::string, City> (name, City(name, neighbors, distances)));
+
+    // Denver
+    name = DENVER;
+//    neighbors = {YELLOWSTONE, SALTLAKECITY, VAIL, ASPEN, COLORADOSPRINGS, OMAHA};
+//    distances = {930, 530, 160, 170, 120, 540};
+    // test
+    neighbors = {YELLOWSTONE, SALTLAKECITY, VAIL, ASPEN, COLORADOSPRINGS};
+    distances = {930, 530, 160, 170, 120};
+    cities.insert(std::pair <std::string, City> (name, City(name, neighbors, distances)));
+
+    // Vail
+    name = VAIL;
+    neighbors = {DENVER, ASPEN};
+    distances = {160, 80};
+    cities.insert(std::pair <std::string, City> (name, City(name, neighbors, distances)));
+
+    // Aspen
+    name = ASPEN;
+    neighbors = {VAIL, DENVER, COLORADOSPRINGS};
+    distances = {80, 170, 180};
+    cities.insert(std::pair <std::string, City> (name, City(name, neighbors, distances)));
+
+    // Colorado Springs
+    name = COLORADOSPRINGS;
+//    neighbors = {ASPEN, DENVER, DALLAS};
+//    distances = {180, 170, 730};
+        // test
+    neighbors = {ASPEN, DENVER};
+    distances = {180, 170};
+    cities.insert(std::pair <std::string, City> (name, City(name, neighbors, distances)));
+
+    // Albuquerque
+    name = ALBUQUERQUE;
+    neighbors = {PHOENIX};
+    distances = {350};
+    cities.insert(std::pair <std::string, City> (name, City(name, neighbors, distances)));
+
 
 }
 
@@ -106,6 +154,12 @@ std::vector<std::string> CityConnections::getCitiesName()
         citiesName.emplace_back(c.first);
     }
     return citiesName;
+}
+
+std::vector<std::string> CityConnections::getNeighbors(std::string city)
+{
+    City currentCity = cities.at(city);
+    return currentCity.getNeighborsName();
 }
 
 
