@@ -8,7 +8,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include "Stack.h"
+#include <stack>
 #include "CityConnections.h"
 #include "PairPathCost.h"
 
@@ -23,7 +23,8 @@ private:
     std::vector<City> *allCities;
     std::vector<std::string> shortestPath, currentPath;
     double lowerCost, currentCost;
-    Stack citiesStack;
+    std::stack<PairPathCost> citiesStack;
+    std::stack<City> citiesStack2;
     City *currentCity;
     CityConnections cityConnections;
 

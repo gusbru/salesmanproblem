@@ -12,7 +12,8 @@ SearchPath::SearchPath(std::string startCity) : startCity(startCity)
     std::cout << "Starting from " << startCity << std::endl;
 
     currentPath.emplace_back(currentCity->getName());
-    citiesStack.addItem(currentPath);
+    citiesStack.emplace(currentPath);
+    citiesStack2.emplace(currentCity);
     currentCity->setVisited();
 
     shortestPath.clear();
@@ -30,14 +31,14 @@ void SearchPath::start()
     double tmpCost;
     std::vector<std::string> tmpPath;
 
-    while (!citiesStack.isEmpty())
+    while (!citiesStack.empty())
     {
 
-        currentPath = citiesStack.getItem().getPath();
-        currentCity = cityConnections.getCity(citiesStack.getItem().getPath().back());
-        currentCost = citiesStack.getItem().getCost();
+        currentPath = citiesStack.top().getPath();
+        currentCity = cityConnections.getCity(citiesStack.top().getPath().back());
+        currentCost = citiesStack.top().getCost();
 
-        citiesStack.removeItem();
+        citiesStack.pop();
 
         std::cout << "Current path = ";
         for (const auto &i : currentPath)
@@ -67,7 +68,7 @@ void SearchPath::start()
                     tmpPath = currentPath;
                     tmpPath.emplace_back(neighbor);
                     tmpCost += currentCity->getDistance(neighbor);
-                    citiesStack.addItem(PairPathCost(tmpPath, tmpCost));
+                    citiesStack.emplace(PairPathCost(tmpPath, tmpCost));
                     currentCity->setVisited();
                 }
 
@@ -79,12 +80,12 @@ void SearchPath::start()
                     tmpPath = currentPath;
                     tmpPath.emplace_back(neighbor);
                     tmpCost += currentCity->getDistance(neighbor);
-                    citiesStack.addItem(PairPathCost(tmpPath, tmpCost));
+                    citiesStack.emplace(PairPathCost(tmpPath, tmpCost));
                     currentCity->setVisited();
                 }
 
             }
-            std::cout << "Stack = " << citiesStack.toString() << std::endl;
+
         }
 
     }
