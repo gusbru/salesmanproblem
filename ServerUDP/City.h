@@ -14,10 +14,10 @@ public:
     City() = default;
     City(std::string name, std::vector<std::string> neighborsName, std::vector<double> neighborsDistance);
     std::string getName();
-    unsigned long getNumNeighbors();
+    int getNumNeighbors();
     std::vector<std::string> getNeighborsName();
-    double getDistance(std::string neighborName);
-    void printKeys();
+    double getNeighborDistance(std::string neighborName);
+    void getKeys();
     bool isVisited();
     void setVisited();
 

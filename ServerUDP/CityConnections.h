@@ -10,6 +10,7 @@
 #include <vector>
 #include <map>
 #include "City.h"
+
 #define SANFRANCISCO "San Francisco"
 #define LOSANGELES "Los Angeles"
 #define SANDIEGO "San Diego"
@@ -57,10 +58,18 @@ class CityConnections
 {
 public:
     CityConnections();
-    std::vector<City> *getCities();
+
+    std::map<std::string, City> getCities();
+
+    std::vector<City> getCitiesVector();
+
     std::vector<std::string> getCitiesName();
-    City *getCity(std::string city);
+
+    City getCity(std::string city);
+
     std::vector<std::string> getNeighbors(std::string city);
+
+    int getNumberOfCities();
 
 
 private:
@@ -70,6 +79,7 @@ private:
     std::vector<std::string> neighbors;
     std::vector<double> distances;
     std::map<std::string, City> cities;
+    int numberOfCities;
 
 
     void populateCities();

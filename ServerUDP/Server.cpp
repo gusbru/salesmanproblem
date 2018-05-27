@@ -2,6 +2,7 @@
 // Created by Gustavo Brunetto on 23/04/18.
 //
 
+#include <cstring>
 #include "Server.h"
 
 Server::Server()

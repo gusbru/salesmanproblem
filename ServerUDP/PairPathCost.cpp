@@ -4,20 +4,18 @@
 
 #include "PairPathCost.h"
 
-PairPathCost::PairPathCost(std::vector<std::string> path)
+PairPathCost::PairPathCost(std::map<std::string, City> cities)
 {
-    this->path = path;
+    this->cities = cities;
+    this->path   = {};
+    this->cost   = 0.0;
 }
 
-PairPathCost::PairPathCost(std::vector<std::string> path, double cost)
+PairPathCost::PairPathCost(const PairPathCost &model)
 {
-    this->path = path;
-    this->cost = cost;
-}
-
-std::vector<std::string> PairPathCost::getPath()
-{
-    return this->path;
+    this->cities = model.cities;
+    this->path   = model.path;
+    this->cost   = model.cost;
 }
 
 double PairPathCost::getCost()
@@ -28,13 +26,35 @@ double PairPathCost::getCost()
 std::string PairPathCost::toString()
 {
     std::string ret;
-    for (auto &item : path)
+    for (auto &item : cities)
     {
-        ret += item + "|";
+        ret += item.second.getName() + "|";
     }
     ret += " (" + std::to_string(cost) + ")";
 
     return ret;
+}
+
+void PairPathCost::addCity(City city, double cost)
+{
+    path.emplace_back(city.getName());
+    this->cost += cost;
+    cities.at(city.getName()).setVisited();
+}
+
+int PairPathCost::getNumberOfVisitedCities()
+{
+    return (int) path.size();
+}
+
+std::vector<std::string> PairPathCost::getPath()
+{
+    return path;
+}
+
+City PairPathCost::getCity(std::string cityName)
+{
+    return cities.at(cityName);
 }
 
 

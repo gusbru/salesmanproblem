@@ -18,8 +18,8 @@ std::string City::getName() {
     return this->name;
 }
 
-unsigned long City::getNumNeighbors() {
-    return this->neighbors.size();
+int City::getNumNeighbors() {
+    return (int) this->neighbors.size();
 }
 
 std::vector<std::string> City::getNeighborsName() {
@@ -29,11 +29,11 @@ std::vector<std::string> City::getNeighborsName() {
     return neighborsName;
 }
 
-double City::getDistance(std::string neighborName) {
+double City::getNeighborDistance(std::string neighborName) {
     return neighbors.at(neighborName);
 }
 
-void City::printKeys()
+void City::getKeys()
 {
     for (auto &neighbor : neighbors)
         std::cout << neighbor.first << std::endl;

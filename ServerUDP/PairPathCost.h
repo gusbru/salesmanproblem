@@ -12,14 +12,25 @@
 class PairPathCost
 {
 public:
-    PairPathCost() = default;
-    PairPathCost(std::vector<std::string> path);
-    PairPathCost(std::vector<std::string> path, double cost);
+    PairPathCost(std::map<std::string, City> cities);
+
+    PairPathCost(const PairPathCost &model);
+
     std::vector<std::string> getPath();
+
     double getCost();
+
     std::string toString();
+
+    void addCity(City city, double cost);
+
+    City getCity(std::string cityName);
+
+    int getNumberOfVisitedCities();
+
 private:
-    std::vector<std::string> path;
+    std::vector<std::string> path{};
+    std::map<std::string, City> cities;
     double cost = 0;
 };
 

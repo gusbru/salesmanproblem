@@ -20,15 +20,13 @@ public:
 
 private:
     std::string startCity;
-    std::vector<City> *allCities;
-    std::vector<std::string> shortestPath, currentPath;
-    double lowerCost, currentCost;
+    std::vector<std::string> shortestPath{}, currentPath;
+    double lowerCost = -1.0, currentCost = 0.0;
     std::stack<PairPathCost> citiesStack;
-    std::stack<City> citiesStack2;
-    City *currentCity;
+    City currentCity, previousCity;
     CityConnections cityConnections;
 
-    bool isSolution(std::vector<std::string> path, std::string initialCity);
+    bool isSolution(PairPathCost pairPathCost, std::string initialCity);
 
 };
 
