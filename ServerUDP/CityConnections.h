@@ -73,7 +73,6 @@ public:
 
 
 private:
-    std::vector<std::string> citiesName;
     std::vector<City> city;
     std::string name;
     std::vector<std::string> neighbors;
