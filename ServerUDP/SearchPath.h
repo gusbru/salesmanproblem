@@ -17,13 +17,14 @@ class SearchPath
 public:
     explicit SearchPath(std::string startCity);
     void start();
+    std::string getRoute();
 
 private:
     std::string startCity;
     std::vector<std::string> shortestPath{}, currentPath;
     double lowerCost = -1.0, currentCost = 0.0;
     std::stack<PairPathCost> citiesStack;
-    City currentCity, previousCity;
+    City currentCity;
     CityConnections cityConnections;
 
     bool isSolution(PairPathCost pairPathCost, std::string initialCity);

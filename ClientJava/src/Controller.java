@@ -1,36 +1,44 @@
-import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.TextArea;
+import javafx.fxml.Initializable;
+import javafx.scene.control.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.net.URL;
+import java.util.ResourceBundle;
 import java.util.StringTokenizer;
 
-public class Controller
+/**
+ * Source: https://examples.javacodegeeks.com/desktop-java/javafx/javafx-concurrency-example/
+ */
+public class Controller implements Initializable
 {
     @FXML
-    public ComboBox<String> cmbCities;
-    public Button btnCalcPath, btnExit;
-    public TextArea txtAreaRoute;
-    private String userInput;
+    private ComboBox<String> cmbCities;
+    @FXML
+    private Button btnCalculate;
+    @FXML
+    private Label lblStartCity, lblDistance;
+    @FXML
+    private ListView<String> listRoute;
+
     private PrintWriter out;
     private Socket firstSocket;
-    private BufferedReader in, stdIn;
+    private BufferedReader in;
+    private String routeString, routeCost;
 
-    public void initialize()
+    @Override
+    public void initialize(URL location, ResourceBundle resources)
     {
         System.out.println("controller");
         String ip = "127.0.0.1";
         int port = 61234;
-
 
         try
         {
@@ -39,52 +47,39 @@ public class Controller
 
             System.out.println("getting cities from server");
             in = new BufferedReader(new InputStreamReader(firstSocket.getInputStream()));
-//            stdIn = new BufferedReader(new InputStreamReader(System.in));
-//            String s = null;
-//            while ((s = stdIn.readLine()) != null)
-//                System.out.println(s);
             String cityList = in.readLine();
             StringTokenizer cityListToken = new StringTokenizer(cityList, ";");
             ObservableList<String> cityOptions = FXCollections.observableArrayList();
             while (cityListToken.hasMoreTokens())
                 cityOptions.add(cityListToken.nextToken());
             cmbCities.setItems(cityOptions);
+            System.out.println("Finished to getting all the cities");
 
-        } catch (Exception error)
+            lblStartCity.setText("");
+            lblDistance.setText("");
+
+
+        }
+        catch (Exception error)
         {
             System.err.println("Error" + error);
             System.exit(1);
         }
 
-        btnCalcPath.setOnAction((ActionEvent event) ->
-        {
-            try
-            {
-                userInput = txtAreaRoute.getText();
-                out = new PrintWriter(firstSocket.getOutputStream(), true);
-                // in = new BufferedReader(new InputStreamReader(firstSocket.getInputStream()));
-                // stdIn = new BufferedReader(new InputStreamReader(System.in));
-                out.println(userInput);
-            } catch (IOException e)
-            {
-                System.err.println("Error " + e);
-            }
+        btnCalculate.setOnAction(event -> calcPath());
 
-
-        });
-
-        btnExit.setOnAction((ActionEvent event) ->
-        {
-            try
-            {
-                in.close();
-                firstSocket.close();
-                System.exit(0);
-            } catch (Exception e)
-            {
-                System.err.println("Error " + e);
-            }
-        });
+//        btnExit.setOnAction((ActionEvent event) ->
+//        {
+//            try
+//            {
+//                in.close();
+//                firstSocket.close();
+//                System.exit(0);
+//            } catch (Exception e)
+//            {
+//                System.err.println("Error " + e);
+//            }
+//        });
 
 
 //            while ((userInput = stdIn.readLine()) != null)
@@ -99,4 +94,59 @@ public class Controller
 
 
     }
+
+    private void calcPath()
+    {
+        // create new runnable
+        Runnable task = this::runTask;
+
+        // run the task on the background thread
+        Thread thread = new Thread(task);
+        thread.setDaemon(true);
+        thread.start();
+
+
+        try
+        {
+            String cityInput = cmbCities.getValue();
+            out = new PrintWriter(firstSocket.getOutputStream(), true);
+            out.println(cityInput);
+            lblStartCity.setText(cityInput);
+
+        }
+        catch (IOException e)
+        {
+            System.err.println("Error calculating path" + e);
+        }
+    }
+
+    private void runTask()
+    {
+        // wait to receive the calculated route and path cost
+        try
+        {
+            //calculated route
+            routeString = in.readLine();
+            // path cost
+            routeCost = in.readLine();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+
+
+        // Update the UI on the JavaFX Application Thread
+        Platform.runLater(() ->
+        {
+            StringTokenizer tokenizer     = new StringTokenizer(routeString, ";");
+            ObservableList<String> cities = FXCollections.observableArrayList();
+            while (tokenizer.hasMoreTokens())
+                cities.add(tokenizer.nextToken());
+
+            listRoute.setItems(cities);
+            lblDistance.setText(routeCost);
+        });
+    }
+
 }

@@ -9,10 +9,10 @@ int main()
 
     try
     {
-//        Server server; // start the server
+        Server server; // start the server
 
-        SearchPath searchPath("San Francisco");
-        searchPath.start();
+//        SearchPath searchPath("San Francisco");
+//        searchPath.start();
 
 
 

@@ -4,6 +4,7 @@
 
 #include <cstring>
 #include "Server.h"
+#include "SearchPath.h"
 
 Server::Server()
 {
@@ -73,14 +74,18 @@ Server::Server()
     ser_addr.sin_addr.s_addr = htonl(INADDR_ANY);
     ser_addr.sin_port = htons(SERVICE_PORT);
     std::cout << "Binding the socket...";
-    if (bind(ser_fd, (struct sockaddr *) &ser_addr, sizeof(ser_addr)) < 0)
-        throw std::invalid_argument("binding datagram socket failed");
-
+    int bindId = bind(ser_fd, (struct sockaddr *) &ser_addr, sizeof(ser_addr));
+    if (bindId < 0)
+    {
+        perror("binding datagram socket failed");
+        exit(2);
+    }
     std::cout << "OK" << std::endl;
 
     // Listening for connection
     std::cout << "Listening for incoming connections...";
-    if (listen(ser_fd, 3) < 0)
+    int listenId = listen(ser_fd, 3);
+    if (listenId < 0)
     {
         perror("listening");
         exit(2);
@@ -150,6 +155,7 @@ Server::Server()
     }
     printf("OK\n");
 
+
     for(;;)
     {
 //         recvlen = recvfrom(ser_fd, buf, BUFSIZE, 0, (struct sockaddr *)&rem_addr, &rem_len);
@@ -157,17 +163,46 @@ Server::Server()
          if (recvlen > 0)
          {
              buf[recvlen] = 0;
-             printf("received message: \"%s\" (%d bytes)", buf, recvlen);
+//             printf("received message: \"%s\" (%d bytes)", buf, recvlen);
              tmp++;
+             std::cout << "Start city = " << buf << std::endl;
              if (strncmp(buf, "FIM", BUFSIZE) == 0)
                  break;
+
+             std::cout << "doing the path calculation" << std::endl;
+             // do the path calculation
+//             SearchPath searchPath(buf);
+//             searchPath.start();
+//             std::string pathString = searchPath.getRoute();
+             std::string pathString = "city1;city2;city3\n";
+             char path[BUFSIZE] = "";
+             strncpy(path, pathString.c_str(), strlen(pathString.c_str()));
+
+             // send back the calculated path
+             if (write(cli_fd, path, sizeof(path)) < 0)
+             {
+                 perror("Sending city list");
+                 exit(2);
+             }
+
+             // send back the calculated cost
+             std::string costString = "20\n";
+             char cost[BUFSIZE] = "";
+             strncpy(cost, costString.c_str(), strlen(costString.c_str()));
+             if (write(cli_fd, cost, sizeof(cost)) < 0)
+             {
+                 perror("Sending path cost");
+                 exit(2);
+             }
+
+             std::cout << "done..." << std::endl;
+
          }
          else
          {
-             printf("uh oh - something went wrong!\n");
-             std::cout << "Closing connection...";
+             std::cout << "Client disconnected... Exiting..." << std::endl;
              close(ser_fd);
-             exit(1);
+             exit(0);
          }
 
 
