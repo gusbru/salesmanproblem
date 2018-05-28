@@ -4,8 +4,11 @@
 
 #include "SearchPath.h"
 
-SearchPath::SearchPath(std::string startCity) : startCity(startCity)
+SearchPath::SearchPath(std::string startCity)
 {
+    // remove newline (\n) from startCity
+    startCity.erase(std::remove(startCity.begin(), startCity.end(), '\n'), startCity.end());
+    this->startCity = startCity;
     std::cout << "Starting from " << startCity << std::endl;
 }
 
@@ -44,6 +47,7 @@ void SearchPath::start()
             {
                 lowerCost = currentCost;
                 shortestPath = currentPath;
+
             }
             else
             {
@@ -203,4 +207,9 @@ std::string SearchPath::getRoute()
         ret += c + ";";
 
     return ret;
+}
+
+std::string SearchPath::getCost()
+{
+    return std::to_string(this->lowerCost);
 }

@@ -171,10 +171,11 @@ Server::Server()
 
              std::cout << "doing the path calculation" << std::endl;
              // do the path calculation
-//             SearchPath searchPath(buf);
-//             searchPath.start();
-//             std::string pathString = searchPath.getRoute();
-             std::string pathString = "city1;city2;city3\n";
+             SearchPath searchPath(buf);
+             searchPath.start();
+             std::string pathString = searchPath.getRoute();
+             pathString += "\n";
+//             std::string pathString = "city1;city2;city3\n";
              char path[BUFSIZE] = "";
              strncpy(path, pathString.c_str(), strlen(pathString.c_str()));
 
@@ -186,7 +187,9 @@ Server::Server()
              }
 
              // send back the calculated cost
-             std::string costString = "20\n";
+//             std::string costString = "20\n";
+             std::string costString = searchPath.getCost();
+             costString += "\n";
              char cost[BUFSIZE] = "";
              strncpy(cost, costString.c_str(), strlen(costString.c_str()));
              if (write(cli_fd, cost, sizeof(cost)) < 0)

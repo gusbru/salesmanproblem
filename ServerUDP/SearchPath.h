@@ -18,6 +18,7 @@ public:
     explicit SearchPath(std::string startCity);
     void start();
     std::string getRoute();
+    std::string getCost();
 
 private:
     std::string startCity;

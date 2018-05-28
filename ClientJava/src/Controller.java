@@ -15,7 +15,19 @@ import java.util.ResourceBundle;
 import java.util.StringTokenizer;
 
 /**
- * Source: https://examples.javacodegeeks.com/desktop-java/javafx/javafx-concurrency-example/
+ * Sources:
+ * <ul>
+ *     <li>
+ *         https://examples.javacodegeeks.com/desktop-java/javafx/javafx-concurrency-example/
+ *     </li>
+ *     <li>
+ *         http://tutorials.jenkov.com/javafx/combobox.html
+ *     </li>
+ *     <li>
+ *         https://docs.oracle.com/javafx/2/ui_controls/progress.htm
+ *     </li>
+ * </ul>
+ *
  */
 public class Controller implements Initializable
 {
@@ -27,6 +39,8 @@ public class Controller implements Initializable
     private Label lblStartCity, lblDistance;
     @FXML
     private ListView<String> listRoute;
+    @FXML
+    private ProgressIndicator prgLoading;
 
     private PrintWriter out;
     private Socket firstSocket;
@@ -57,6 +71,7 @@ public class Controller implements Initializable
 
             lblStartCity.setText("");
             lblDistance.setText("");
+            prgLoading.setVisible(false);
 
 
         }
@@ -97,6 +112,12 @@ public class Controller implements Initializable
 
     private void calcPath()
     {
+        // progress indicator
+        prgLoading.setProgress(-1.0);
+        prgLoading.setVisible(true);
+        cmbCities.setDisable(true);
+        btnCalculate.setDisable(true);
+
         // create new runnable
         Runnable task = this::runTask;
 
@@ -146,6 +167,9 @@ public class Controller implements Initializable
 
             listRoute.setItems(cities);
             lblDistance.setText(routeCost);
+            prgLoading.setProgress(1.0);
+            cmbCities.setDisable(false);
+            btnCalculate.setDisable(false);
         });
     }
 
