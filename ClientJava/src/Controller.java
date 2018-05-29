@@ -109,6 +109,9 @@ public class Controller implements Initializable
 
     private void calcPath()
     {
+        if (cmbCities.getValue().equals(""))
+            return;
+
         // progress indicator
         prgLoading.setProgress(-1.0);
         prgLoading.setVisible(true);
@@ -121,29 +124,6 @@ public class Controller implements Initializable
         Thread thread = new Thread(task);
         thread.setDaemon(true);
         thread.start();
-
-        // create a new runnable task - listening for exit message
-//        Runnable exitTask = () ->
-//        {
-//            for (;;)
-//            {
-//                System.out.println(routeString);
-//                if (routeString.equals("END"))
-//                {
-//                    Platform.runLater(() -> {
-//                        prgLoading.setProgress(1.0);
-//                        cmbCities.setDisable(false);
-//                        btnCalculate.setDisable(false);
-//                    });
-//                    break;
-//                }
-//            }
-//
-//        };
-//        Thread exitThread = new Thread(exitTask);
-//        exitThread.setDaemon(true);
-//        exitThread.start();
-
 
         try
         {
@@ -184,6 +164,8 @@ public class Controller implements Initializable
 
                 if (!isComplete)
                 {
+                    listRoute.getItems().clear();
+
                     StringTokenizer tokenizer = new StringTokenizer(routeString, ";");
                     while (tokenizer.hasMoreTokens())
                         cities.add(tokenizer.nextToken());
