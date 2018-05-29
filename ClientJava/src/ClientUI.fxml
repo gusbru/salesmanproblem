@@ -17,6 +17,7 @@
       <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
         <buttons>
           <Button fx:id="btnCalculate" mnemonicParsing="false" text="Calculate Route" />
+            <Button fx:id="btnClear" mnemonicParsing="false" text="Clear" />
         </buttons>
          <BorderPane.margin>
             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />

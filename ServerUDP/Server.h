@@ -13,9 +13,10 @@
 #include <cstdio>
 #include <cstdlib>
 #include <unistd.h>
+#include <cstring>
+#include "SearchPath.h"
 #include "CityConnections.h"
 #include "port.h"
-#define BUFSIZE 2048
 
 class Server
 {

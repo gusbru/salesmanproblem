@@ -4,8 +4,6 @@ import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
-import java.io.*;
-import java.net.*;
 
 public class Client extends Application
 {
@@ -31,6 +29,7 @@ public class Client extends Application
         Scene scene = new Scene(mainBox);
         primaryStage.setScene(scene);
         primaryStage.setTitle("Plan Route");
+        primaryStage.setResizable(false);
         primaryStage.show();
     }
 }

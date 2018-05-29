@@ -12,10 +12,11 @@ SearchPath::SearchPath(std::string startCity)
     std::cout << "Starting from " << startCity << std::endl;
 }
 
-void SearchPath::start()
+void SearchPath::start(int cli_fd)
 {
     std::cout << "Starting search..." << std::endl;
 
+    this->cli_fd = cli_fd;
     PairPathCost pairPathCost(cityConnections.getCities());
 
     // add origin
@@ -27,7 +28,7 @@ void SearchPath::start()
 
     int count = 0;
 
-    while (!citiesStack.empty())
+    while (!citiesStack.empty() && count < 2)
     {
 //        std::cout << count << std::endl;
 
@@ -38,25 +39,34 @@ void SearchPath::start()
         if (isSolution(pairPathCost, startCity))
         {
             // compare cost
-            std::cout << "**************************************" << std::endl;
-            std::cout << "FOUND A SOLUTION" << std::endl;
-            std::cout << "**************************************" << std::endl;
             count++;
+            std::vector<std::string> path{};
+            path = pairPathCost.getPath();
+            double cost = pairPathCost.getCost() + cityConnections.getCity(path.back()).getNeighborDistance(startCity);
+            path.emplace_back(startCity);
 
-            if (lowerCost < 0)
+            if (lowestCost < 0)
             {
-                lowerCost = currentCost;
-                shortestPath = currentPath;
-
+                lowestCost = cost;
+                shortestPath = path;
             }
             else
             {
-                if (currentCost < lowerCost)
+                if (cost < lowestCost)
                 {
-                    lowerCost = currentCost;
-                    shortestPath = currentPath;
+                    lowestCost = cost;
+                    shortestPath = path;
                 }
             }
+            // send the solution to client
+            std::string shortestPathString;
+            for (auto &c : shortestPath)
+                shortestPathString += c + ";";
+
+            sendToClient(shortestPathString);
+
+            std::string lowestCostString = std::to_string(lowestCost);
+            sendToClient(lowestCostString);
         }
         else
         {
@@ -131,6 +141,9 @@ void SearchPath::start()
     else
         std::cout << " :)" << std::endl;
 
+    // send a message to client that the calculation is finished
+    sendToClient("END");
+    sendToClient("0");
 
 }
 
@@ -146,10 +159,10 @@ bool SearchPath::isSolution(PairPathCost pairPathCost, std::string initialCity)
     std::vector<std::string> listOfCities = cityConnections.getCitiesName();
 
 
-    std::cout << "Path = ";
-    for (auto &c : path)
-        std::cout << c << "->";
-    std::cout << std::endl;
+//    std::cout << "Path = ";
+//    for (auto &c : path)
+//        std::cout << c << "->";
+//    std::cout << std::endl;
 
     // check which cities were visited
     for (auto &p : path)
@@ -166,10 +179,10 @@ bool SearchPath::isSolution(PairPathCost pairPathCost, std::string initialCity)
 
     if (!listOfCities.empty())
     {
-        std::cout << "not a solution because not visited all cities " << listOfCities.size() << std::endl;
-        for (auto &c : listOfCities)
-            std::cout << c << " ";
-        std::cout << std::endl;
+//        std::cout << "not a solution because not visited all cities " << listOfCities.size() << std::endl;
+//        for (auto &c : listOfCities)
+//            std::cout << c << " ";
+//        std::cout << std::endl;
         return false;
     }
 
@@ -181,6 +194,9 @@ bool SearchPath::isSolution(PairPathCost pairPathCost, std::string initialCity)
     for (auto &n : cityConnections.getNeighbors(path.back()))
         if (n == initialCity)
         {
+            std::cout << "*************************************************************" << std::endl;
+            std::cout << "FOUND A SOLUTION" << std::endl;
+            std::cout << "*************************************************************" << std::endl;
             std::cout << "*************************************************************" << std::endl;
             std::cout << "*************************************************************" << std::endl;
             std::cout << "path found = ";
@@ -211,5 +227,15 @@ std::string SearchPath::getRoute()
 
 std::string SearchPath::getCost()
 {
-    return std::to_string(this->lowerCost);
+    return std::to_string(this->lowestCost);
+}
+
+ssize_t SearchPath::sendToClient(std::string stringToSend)
+{
+    stringToSend += "\n";
+    char charToSend[BUFSIZE] = "";
+    strncpy(charToSend, stringToSend.c_str(), strlen(stringToSend.c_str()));
+    ssize_t status = write(cli_fd, charToSend, sizeof(charToSend));
+
+    return status;
 }

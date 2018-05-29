@@ -2,9 +2,7 @@
 // Created by Gustavo Brunetto on 23/04/18.
 //
 
-#include <cstring>
 #include "Server.h"
-#include "SearchPath.h"
 
 Server::Server()
 {
@@ -156,69 +154,69 @@ Server::Server()
     printf("OK\n");
 
 
-    for(;;)
+    for (;;)
     {
 //         recvlen = recvfrom(ser_fd, buf, BUFSIZE, 0, (struct sockaddr *)&rem_addr, &rem_len);
-         recvlen = (int) read(cli_fd, buf, BUFSIZE);
-         if (recvlen > 0)
-         {
-             buf[recvlen] = 0;
+        std::cout << "Waiting for client" << std::endl;
+        recvlen = (int) read(cli_fd, buf, BUFSIZE);
+        if (recvlen > 0)
+        {
+            buf[recvlen] = 0;
 //             printf("received message: \"%s\" (%d bytes)", buf, recvlen);
-             tmp++;
-             std::cout << "Start city = " << buf << std::endl;
-             if (strncmp(buf, "FIM", BUFSIZE) == 0)
-                 break;
+            tmp++;
+            std::cout << "Start city = " << buf << std::endl;
+            if (strncmp(buf, "FIM", BUFSIZE) == 0)
+                break;
 
-             std::cout << "doing the path calculation" << std::endl;
-             // do the path calculation
-             SearchPath searchPath(buf);
-             searchPath.start();
-             std::string pathString = searchPath.getRoute();
-             pathString += "\n";
+            std::cout << "doing the path calculation" << std::endl;
+            // do the path calculation
+            SearchPath searchPath(buf);
+            searchPath.start(cli_fd);
+//             std::string pathString = searchPath.getRoute();
+//             pathString += "\n";
 //             std::string pathString = "city1;city2;city3\n";
-             char path[BUFSIZE] = "";
-             strncpy(path, pathString.c_str(), strlen(pathString.c_str()));
+//             char path[BUFSIZE] = "";
+//             strncpy(path, pathString.c_str(), strlen(pathString.c_str()));
 
-             // send back the calculated path
-             if (write(cli_fd, path, sizeof(path)) < 0)
-             {
-                 perror("Sending city list");
-                 exit(2);
-             }
+            // send back the calculated path
+//             if (write(cli_fd, path, sizeof(path)) < 0)
+//             {
+//                 perror("Sending city list");
+//                 exit(2);
+//             }
 
-             // send back the calculated cost
-//             std::string costString = "20\n";
-             std::string costString = searchPath.getCost();
-             costString += "\n";
-             char cost[BUFSIZE] = "";
-             strncpy(cost, costString.c_str(), strlen(costString.c_str()));
-             if (write(cli_fd, cost, sizeof(cost)) < 0)
-             {
-                 perror("Sending path cost");
-                 exit(2);
-             }
+            // send back the calculated cost
+//             std::string costString = searchPath.getCost();
+//             costString += "\n";
+//             char cost[BUFSIZE] = "";
+//             strncpy(cost, costString.c_str(), strlen(costString.c_str()));
+//             if (write(cli_fd, cost, sizeof(cost)) < 0)
+//             {
+//                 perror("Sending path cost");
+//                 exit(2);
+//             }
 
-             std::cout << "done..." << std::endl;
+            std::cout << "done..." << std::endl;
 
-         }
-         else
-         {
-             std::cout << "Client disconnected... Exiting..." << std::endl;
-             close(ser_fd);
-             exit(0);
-         }
+        }
+        else
+        {
+            std::cout << "Client disconnected... Exiting..." << std::endl;
+            close(ser_fd);
+            exit(0);
+        }
 
 
-         // send message back to client
+        // send message back to client
 //         sprintf(buf, "ack %d", msgcnt++);
 //         printf("sending response ""\"%s\"\n", buf);
 //         if (sendto(ser_fd, buf, strlen(buf), 0, (struct sockaddr *)&rem_addr, rem_len) < 0)
 //             perror("sendto");
 //         printf("message count = %d\n", tmp);
-     }
+    }
 
-     std::cout << "Closing connection...";
-     close(ser_fd);
-     std::cout << "OK" << std::endl;
+    std::cout << "Closing connection...";
+    close(ser_fd);
+    std::cout << "OK" << std::endl;
 
 }

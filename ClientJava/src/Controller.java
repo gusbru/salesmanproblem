@@ -17,24 +17,23 @@ import java.util.StringTokenizer;
 /**
  * Sources:
  * <ul>
- *     <li>
- *         https://examples.javacodegeeks.com/desktop-java/javafx/javafx-concurrency-example/
- *     </li>
- *     <li>
- *         http://tutorials.jenkov.com/javafx/combobox.html
- *     </li>
- *     <li>
- *         https://docs.oracle.com/javafx/2/ui_controls/progress.htm
- *     </li>
+ * <li>
+ * https://examples.javacodegeeks.com/desktop-java/javafx/javafx-concurrency-example/
+ * </li>
+ * <li>
+ * http://tutorials.jenkov.com/javafx/combobox.html
+ * </li>
+ * <li>
+ * https://docs.oracle.com/javafx/2/ui_controls/progress.htm
+ * </li>
  * </ul>
- *
  */
 public class Controller implements Initializable
 {
     @FXML
     private ComboBox<String> cmbCities;
     @FXML
-    private Button btnCalculate;
+    private Button btnCalculate, btnClear;
     @FXML
     private Label lblStartCity, lblDistance;
     @FXML
@@ -69,10 +68,7 @@ public class Controller implements Initializable
             cmbCities.setItems(cityOptions);
             System.out.println("Finished to getting all the cities");
 
-            lblStartCity.setText("");
-            lblDistance.setText("");
-            prgLoading.setVisible(false);
-
+            resetCalc();
 
         }
         catch (Exception error)
@@ -82,6 +78,7 @@ public class Controller implements Initializable
         }
 
         btnCalculate.setOnAction(event -> calcPath());
+        btnClear.setOnAction(event -> resetCalc());
 
 //        btnExit.setOnAction((ActionEvent event) ->
 //        {
@@ -118,13 +115,34 @@ public class Controller implements Initializable
         cmbCities.setDisable(true);
         btnCalculate.setDisable(true);
 
-        // create new runnable
+        // create new runnable (listening for solution from the server)
         Runnable task = this::runTask;
-
         // run the task on the background thread
         Thread thread = new Thread(task);
         thread.setDaemon(true);
         thread.start();
+
+        // create a new runnable task - listening for exit message
+//        Runnable exitTask = () ->
+//        {
+//            for (;;)
+//            {
+//                System.out.println(routeString);
+//                if (routeString.equals("END"))
+//                {
+//                    Platform.runLater(() -> {
+//                        prgLoading.setProgress(1.0);
+//                        cmbCities.setDisable(false);
+//                        btnCalculate.setDisable(false);
+//                    });
+//                    break;
+//                }
+//            }
+//
+//        };
+//        Thread exitThread = new Thread(exitTask);
+//        exitThread.setDaemon(true);
+//        exitThread.start();
 
 
         try
@@ -143,34 +161,76 @@ public class Controller implements Initializable
 
     private void runTask()
     {
-        // wait to receive the calculated route and path cost
-        try
+        ObservableList<String> cities = FXCollections.observableArrayList();
+        boolean isComplete = false;
+        while (!isComplete)
         {
-            //calculated route
-            routeString = in.readLine();
-            // path cost
-            routeCost = in.readLine();
+            // wait to receive the calculated route and path cost
+            try
+            {
+                //calculated route
+                System.out.println("waiting to receive the route");
+                routeString = in.readLine();
+                System.out.println("route received! " + routeString);
+
+                if (routeString.substring(routeString.length()-3,routeString.length()).equals("END"))
+                {
+                    System.out.println("entrei aqui!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                    isComplete = true;
+                    Platform.runLater(() ->
+                            prgLoading.setProgress(1.0)
+                    );
+                }
+
+                if (!isComplete)
+                {
+                    StringTokenizer tokenizer = new StringTokenizer(routeString, ";");
+                    while (tokenizer.hasMoreTokens())
+                        cities.add(tokenizer.nextToken());
+
+                    // path cost
+                    System.out.println("waiting to receive the cost");
+                    routeCost = in.readLine();
+                    System.out.println("cost received " + routeCost);
+                }
+
+
+            }
+            catch (IOException e)
+            {
+                System.out.println("Error reading string from server\n");
+                e.printStackTrace();
+            }
+
+
+            // Update the UI on the JavaFX Application Thread
+            Platform.runLater(() ->
+            {
+                listRoute.setItems(cities);
+                lblDistance.setText(routeCost);
+//                prgLoading.setProgress(1.0);
+//                cmbCities.setDisable(false);
+//                btnCalculate.setDisable(false);
+            });
+
         }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
 
+//        prgLoading.setProgress(1.0);
+//        cmbCities.setDisable(false);
+//        btnCalculate.setDisable(false);
+        System.out.println("Exiting task that update the city list");
 
-        // Update the UI on the JavaFX Application Thread
-        Platform.runLater(() ->
-        {
-            StringTokenizer tokenizer     = new StringTokenizer(routeString, ";");
-            ObservableList<String> cities = FXCollections.observableArrayList();
-            while (tokenizer.hasMoreTokens())
-                cities.add(tokenizer.nextToken());
+    }
 
-            listRoute.setItems(cities);
-            lblDistance.setText(routeCost);
-            prgLoading.setProgress(1.0);
-            cmbCities.setDisable(false);
-            btnCalculate.setDisable(false);
-        });
+    private void resetCalc()
+    {
+        prgLoading.setVisible(false);
+        cmbCities.setDisable(false);
+        cmbCities.setValue("");
+        btnCalculate.setDisable(false);
+        listRoute.getItems().clear();
+        lblDistance.setText("");
+        lblStartCity.setText("");
     }
 
 }

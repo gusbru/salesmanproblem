@@ -11,6 +11,7 @@
  * digits of your id + 1024
  */
 
-#define SERVICE_PORT	61234	/* hard-coded port number */
+#define SERVICE_PORT 61234	/* hard-coded port number */
+#define BUFSIZE      4096
 
 #endif //SERVERUDP_PORT_H
