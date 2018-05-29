@@ -33,7 +33,11 @@ private:
 
     bool isSolution(PairPathCost pairPathCost, std::string initialCity);
 
+    bool isSolution(PairPathCost pairPathCost, std::string initialCity, std::string endCity);
+
     ssize_t sendToClient(std::string stringToSend);
+
+    void addToStack(PairPathCost pairPathCost, std::string neighborName);
 
 };
 

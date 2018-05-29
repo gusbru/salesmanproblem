@@ -12,6 +12,8 @@
 class PairPathCost
 {
 public:
+    PairPathCost() = default;
+
     PairPathCost(std::map<std::string, City> cities);
 
     PairPathCost(const PairPathCost &model);

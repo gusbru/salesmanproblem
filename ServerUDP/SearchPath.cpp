@@ -25,12 +25,13 @@ void SearchPath::start(int cli_fd)
     currentCost = 0.0;
     pairPathCost.addCity(currentCity, currentCost);
     citiesStack.emplace(pairPathCost);
-
+    double cost, nextCost;
     int count = 0;
+    std::string lowestCostString;
+    PairPathCost pairPathCostNext;
 
     while (!citiesStack.empty() && count < 2)
     {
-//        std::cout << count << std::endl;
 
         // remove the top pairPathCost in the stack --> next city to visit
         pairPathCost = citiesStack.top();
@@ -42,7 +43,7 @@ void SearchPath::start(int cli_fd)
             count++;
             std::vector<std::string> path{};
             path = pairPathCost.getPath();
-            double cost = pairPathCost.getCost() + cityConnections.getCity(path.back()).getNeighborDistance(startCity);
+            cost = pairPathCost.getCost() + cityConnections.getCity(path.back()).getNeighborDistance(startCity);
             path.emplace_back(startCity);
 
             if (lowestCost < 0)
@@ -65,7 +66,7 @@ void SearchPath::start(int cli_fd)
 
             sendToClient(shortestPathString);
 
-            std::string lowestCostString = std::to_string(lowestCost);
+            lowestCostString = std::to_string(lowestCost);
             sendToClient(lowestCostString);
         }
         else
@@ -74,6 +75,12 @@ void SearchPath::start(int cli_fd)
             currentCost = pairPathCost.getCost();
             currentCity = pairPathCost.getCity(currentPath.back());
 
+            /*
+             * if the current cost is higher than a best result found previously,
+             * skip this branch
+             **/
+            if (currentCost > lowestCost && lowestCost > 0)
+                break;
 
             // Output to debug
 //            std::cout << "Current path = ";
@@ -92,47 +99,34 @@ void SearchPath::start(int cli_fd)
 //            std::cout << std::endl;
 
             // add all non visited neighbors to stack;
-            int numAvailableNeighbors;
             for (auto &n : currentCity.getNeighborsName())
             {
-                numAvailableNeighbors = 0;
-                // for cities with only one road (e.g. Albuquerque)
-                if (currentCity.getNumNeighbors() == 1)
-                {
-                    PairPathCost pairPathCostNext = pairPathCost;
-                    City nextCity = cityConnections.getCity(n);
-                    double nextCost = currentCity.getNeighborDistance(n);
-                    pairPathCostNext.addCity(nextCity, nextCost);
-                    citiesStack.emplace(pairPathCostNext);
-                    numAvailableNeighbors++;
-                }
-
                 if (!pairPathCost.getCity(n).isVisited())
-                {
-                    PairPathCost pairPathCostNext = pairPathCost;
-                    City nextCity = cityConnections.getCity(n);
-                    double nextCost = currentCity.getNeighborDistance(n);
-                    pairPathCostNext.addCity(nextCity, nextCost);
-                    citiesStack.emplace(pairPathCostNext);
-                    numAvailableNeighbors++;
+                    addToStack(pairPathCost, n);
 
-                }
+                if (currentCity.getNumNeighbors() == 1)
+                    addToStack(pairPathCost, n);
 
-//                std::cout << "***********************" << std::endl;
-//                std::cout << "***********************" << std::endl;
-//                std::cout << "number of " << numAvailableNeighbors << std::endl;
-//                std::cout << "***********************" << std::endl;
-//                std::cout << "***********************" << std::endl;
-
-
-
+                // for cities with only one road (e.g. Albuquerque)
+//                if (currentCity.getNumNeighbors() == 1)
+//                {
+//                    pairPathCostNext = pairPathCost;
+//                    City nextCity = cityConnections.getCity(n);
+//                    nextCost = currentCity.getNeighborDistance(n);
+//                    pairPathCostNext.addCity(nextCity, nextCost);
+//                    citiesStack.emplace(pairPathCostNext);
+//                }
+//
+//                if (!pairPathCost.getCity(n).isVisited())
+//                {
+//                    pairPathCostNext = pairPathCost;
+//                    City nextCity = cityConnections.getCity(n);
+//                    nextCost = currentCity.getNeighborDistance(n);
+//                    pairPathCostNext.addCity(nextCity, nextCost);
+//                    citiesStack.emplace(pairPathCostNext);
+//                }
             }
-
-//            std::cin.get();
-//            count++;
-
         }
-
     }
 
     std::cout << "Found " << count << " solutions";
@@ -152,19 +146,20 @@ bool SearchPath::isSolution(PairPathCost pairPathCost, std::string initialCity)
     if (pairPathCost.getNumberOfVisitedCities() < cityConnections.getNumberOfCities())
         return false;
 
-
-
     // get a list of all city names
     std::vector<std::string> path = pairPathCost.getPath();
     std::vector<std::string> listOfCities = cityConnections.getCitiesName();
 
+    // check if the last visited city makes connection with the start city
+    int numNeighbors = 0;
+    for (auto &n : cityConnections.getNeighbors(path.back()))
+        if (n == initialCity)
+            numNeighbors++;
 
-//    std::cout << "Path = ";
-//    for (auto &c : path)
-//        std::cout << c << "->";
-//    std::cout << std::endl;
+    if (numNeighbors == 0)
+        return false;
 
-    // check which cities were visited
+//     check which cities were visited
     for (auto &p : path)
     {
         for (int i = 0; i < listOfCities.size(); i++)
@@ -179,10 +174,13 @@ bool SearchPath::isSolution(PairPathCost pairPathCost, std::string initialCity)
 
     if (!listOfCities.empty())
     {
-//        std::cout << "not a solution because not visited all cities " << listOfCities.size() << std::endl;
-//        for (auto &c : listOfCities)
-//            std::cout << c << " ";
-//        std::cout << std::endl;
+        std::cout << "not a solution because not visited all cities " << listOfCities.size() << std::endl;
+        for (auto &c : listOfCities)
+            std::cout << c << " ";
+        std::cout << std::endl;
+        for (auto &c : path)
+            std::cout << c << "->";
+        std::cout << std::endl;
         return false;
     }
 
@@ -238,4 +236,18 @@ ssize_t SearchPath::sendToClient(std::string stringToSend)
     ssize_t status = write(cli_fd, charToSend, sizeof(charToSend));
 
     return status;
+}
+
+void SearchPath::addToStack(PairPathCost pairPathCost, std::string neighborName)
+{
+    PairPathCost pairPathCostNext = pairPathCost;
+    City nextCity = cityConnections.getCity(neighborName);
+    double nextCost = currentCity.getNeighborDistance(neighborName);
+    pairPathCostNext.addCity(nextCity, nextCost);
+    citiesStack.emplace(pairPathCostNext);
+}
+
+bool SearchPath::isSolution(PairPathCost pairPathCost, std::string initialCity, std::string endCity)
+{
+    return false;
 }

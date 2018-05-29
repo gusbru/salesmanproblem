@@ -6,9 +6,11 @@
 #include "City.h"
 
 City::City(std::string name,
+           std::string region,
            std::vector<std::string> neighborsName,
            std::vector<double> neighborsDistance) {
     this->name = name;
+    this->region = region;
     this->visited = false;
     for (int i=0; i < neighborsName.size(); i++)
         neighbors.insert(std::pair<std::string, double> (neighborsName[i], neighborsDistance[i]));
@@ -47,5 +49,20 @@ bool City::isVisited()
 void City::setVisited()
 {
     this->visited = true;
+}
+
+std::string City::getRegion()
+{
+    return this->region;
+}
+
+void City::setBorder()
+{
+    this->border = true;
+}
+
+bool City::isBorder()
+{
+    return this->border;
 }
 

@@ -9,22 +9,40 @@
 #include <vector>
 #include <map>
 
-class City {
+class City
+{
 public:
     City() = default;
-    City(std::string name, std::vector<std::string> neighborsName, std::vector<double> neighborsDistance);
+
+    City(std::string name, std::string region, std::vector<std::string> neighborsName,
+         std::vector<double> neighborsDistance);
+
     std::string getName();
+
     int getNumNeighbors();
+
     std::vector<std::string> getNeighborsName();
+
     double getNeighborDistance(std::string neighborName);
+
     void getKeys();
+
     bool isVisited();
+
     void setVisited();
+
+    std::string getRegion();
+
+    void setBorder();
+
+    bool isBorder();
 
 private:
     std::string name;
     std::map<std::string, double> neighbors;
+    std::string region;
     bool visited{};
+    bool border = false;
 };
 
 
