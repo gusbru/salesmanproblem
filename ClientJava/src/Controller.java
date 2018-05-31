@@ -74,6 +74,11 @@ public class Controller implements Initializable
         catch (Exception error)
         {
             System.err.println("Error" + error);
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("Error connecting to the server :(");
+            alert.setContentText("Check if the server is online and try again...");
+            alert.showAndWait();
             System.exit(1);
         }
 
@@ -182,6 +187,10 @@ public class Controller implements Initializable
             {
                 System.out.println("Error reading string from server\n");
                 e.printStackTrace();
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Connection Error");
+                alert.setHeaderText("Error reading information from server");
+                alert.showAndWait();
             }
 
 
@@ -215,4 +224,44 @@ public class Controller implements Initializable
         lblStartCity.setText("");
     }
 
+
+    public String toString()
+    {
+        String ret = "";
+
+        return ret;
+    }
+
+    public boolean equals(Object obj) {
+        if (obj == null)
+            return false;
+
+        if (this != obj)
+            return false;
+
+        if (this.getClass() != obj.getClass())
+            return false;
+
+        // cast
+        Controller c = (Controller) obj;
+
+        for (int i = 0; i < cmbCities.getItems().size(); i++)
+            if (!this.cmbCities.getItems().get(i).equals(c.cmbCities.getItems().get(i)))
+                return false;
+
+        for (int i = 0; i < listRoute.getItems().size(); i++)
+            if (!this.listRoute.getItems().get(i).equals(c.listRoute.getItems().get(i)))
+                return false;
+
+        return true;
+    }
+
+    public int hashCode()
+    {
+        int ret = 304;
+
+        return ret;
+    }
+
 }
+

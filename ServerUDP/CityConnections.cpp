@@ -23,6 +23,18 @@ std::map<std::string, City> CityConnections::getCities()
     return this->cities;
 }
 
+std::map<std::string, City> CityConnections::getCities(std::string region)
+{
+    std::map<std::string, City> citiesByRegion;
+    for (auto &c : cities)
+    {
+        if (c.second.getRegion() == region)
+            citiesByRegion.emplace(c);
+    }
+
+    return citiesByRegion;
+};
+
 void CityConnections::populateCities()
 {
     // San Francisco

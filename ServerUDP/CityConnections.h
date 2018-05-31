@@ -61,6 +61,8 @@ public:
 
     std::map<std::string, City> getCities();
 
+    std::map<std::string, City> getCities(std::string region);
+
     std::vector<City> getCitiesVector();
 
     std::vector<std::string> getCitiesName();

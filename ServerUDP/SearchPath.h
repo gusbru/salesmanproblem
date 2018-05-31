@@ -10,9 +10,11 @@
 #include <vector>
 #include <stack>
 #include <unistd.h>
+#include "omp.h"
 #include "CityConnections.h"
 #include "PairPathCost.h"
 #include "port.h"
+#include "Search.h"
 
 class SearchPath
 {
@@ -30,6 +32,7 @@ private:
     std::stack<PairPathCost> citiesStack;
     City currentCity;
     CityConnections cityConnections;
+    std::vector<PairPathCost> results{};
 
     bool isSolution(PairPathCost pairPathCost, std::string initialCity);
 
